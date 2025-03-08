@@ -1,7 +1,7 @@
 library(ggplot2)
 library(forecast)
+library(writexl)
 
-# Load the dataset
 bookings <- read.csv("C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/bookings.csv")
 bookings$travel_date <- as.Date(bookings$travel_date, format="%Y-%m-%d")
 bookings$month <- format(bookings$travel_date, "%Y-%m")
@@ -23,7 +23,7 @@ forecasted <- forecast(model, h=12)
 
 # Convert forecast to a data frame for custom ggplot visualization
 forecast_df <- data.frame(
-  Date = seq(from=monthly_demand$month[length(monthly_demand$month)], 
+  Date = seq(from=monthly_demand$month[length(monthly_demand$month)],
              by="month", length.out=12),
   Forecast = forecasted$mean,
   Lower80 = forecasted$lower[,1],
@@ -32,7 +32,13 @@ forecast_df <- data.frame(
   Upper95 = forecasted$upper[,2]
 )
 
-# Plot the actual data and forecast using ggplot2
+
+print(forecast_df)
+
+write.csv(forecast_df, "forecasted_data.csv", row.names = FALSE)
+
+write_xlsx(forecast_df, "forecasted_data.xlsx")
+
 ggplot() +
   geom_line(data=monthly_demand, aes(x=month, y=booking_id), color="blue", size=1.2) +
   geom_line(data=forecast_df, aes(x=Date, y=Forecast), color="red", size=1.2, linetype="dashed") +
